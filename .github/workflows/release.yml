@@ -50,7 +50,7 @@ jobs:
 
   # 2. Build iOS IPA (unsigned for sideloading) on macOS runner
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -61,6 +61,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: 🛠️ Set Xcode Version (Requires Xcode >= 16.1 for React Native)
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer || \
+          sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer || \
+          sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer || \
+          true
+
       - name: 📦 Install Dependencies
         run: npm install --legacy-peer-deps
 
@@ -69,7 +76,7 @@ jobs:
 
       - name: 🔨 Build Unsigned iOS App
         run: |
-          WORKSPACE_PATH=$(find ios -name "*.xcworkspace" | head -n 1)
+          WORKSPACE_PATH=$(find ios -maxdepth 1 -name "*.xcworkspace" | head -n 1)
           SCHEME_NAME=$(basename "$WORKSPACE_PATH" .xcworkspace)
           echo "Workspace found: $WORKSPACE_PATH"
           echo "Scheme found: $SCHEME_NAME"
