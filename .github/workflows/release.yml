@@ -1,0 +1,66 @@
+name: Build & Release Android APK 🚀
+
+on:
+  push:
+    branches:
+      - main
+
+# Grant permissions to write releases
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: ⚙️ Prebuild Native Android Project
+        run: npx expo prebuild --platform android --no-install
+
+      - name: ☕ Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: 🔨 Build Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: 📂 Rename APK for release
+        run: mv android/app/build/outputs/apk/release/app-release.apk CS-GRADES-Android.apk
+
+      - name: 🚀 Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: CS-GRADES Release v1.0.${{ github.run_number }}
+          body: |
+            ## CS-GRADES Automated Release 🎓
+            
+            This release was automatically built by GitHub Actions on push to `main`.
+            
+            ### 📱 Installation (Android)
+            - Download `CS-GRADES-Android.apk` attached below.
+            - Install the APK on your Android device (ensure "Install from Unknown Sources" is enabled in settings).
+            
+            ### 🍏 Testing on iOS
+            - Install the free **Expo Go** app from the App Store.
+            - Run `npx expo start` in the terminal and scan the QR code to run on iOS instantly.
+          draft: false
+          prerelease: false
+          files: CS-GRADES-Android.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
