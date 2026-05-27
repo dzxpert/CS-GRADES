@@ -54,14 +54,21 @@ Every time changes are pushed to the `main` branch, an optimized release is auto
 2. Download the latest **`CS-GRADES-Android.apk`**.
 3. Open the downloaded file on your device and tap **Install** (ensure "Install from Unknown Sources" is enabled in your Android settings).
 
-### 🍏 iOS (No Account Required)
-To test on iPhones for free with **zero setup** and without paying for Apple developer licenses:
+### 🍏 iOS (Two Methods)
+
+#### Option A: Sideload the IPA (Permanent App Installation)
+Every push to `main` compiles an unsigned `.ipa` file that you can install directly on your device.
+1. Head to the **[Releases](../../releases)** section.
+2. Download the latest **`CS-GRADES-iOS.ipa`**.
+3. Install it using free sideloading tools like **AltStore**, **SideStore**, or **Sideloadly** (these sign the app automatically with your personal free Apple ID!).
+
+#### Option B: Expo Go (Instant Testing, Zero Setup)
 1. Download the free **[Expo Go](https://apps.apple.com/app/expo-go/id1224866571)** app from the App Store.
 2. Clone this repository locally and run the local development server:
    ```bash
    npx expo start
    ```
-3. Scan the generated Metro QR code using your iPhone's camera (or the Expo Go scanner) to run the app in high-fidelity instantly!
+3. Scan the generated Metro QR code using your iPhone's camera (or the Expo Go scanner) to run the app instantly in high-fidelity!
 
 ---
 

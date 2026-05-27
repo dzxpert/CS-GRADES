@@ -1,15 +1,15 @@
-name: Build & Release Android APK 🚀
+name: Build & Release Apps 🚀
 
 on:
   push:
     branches:
       - main
 
-# Grant permissions to write releases
 permissions:
   contents: write
 
 jobs:
+  # 1. Build Android APK natively on Linux runner
   build-android:
     runs-on: ubuntu-latest
     steps:
@@ -42,6 +42,77 @@ jobs:
       - name: 📂 Rename APK for release
         run: mv android/app/build/outputs/apk/release/app-release.apk CS-GRADES-Android.apk
 
+      - name: 📤 Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: CS-GRADES-Android.apk
+
+  # 2. Build iOS IPA (unsigned for sideloading) on macOS runner
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: ⚙️ Prebuild Native iOS Project (runs Pod install)
+        run: npx expo prebuild --platform ios
+
+      - name: 🔨 Build Unsigned iOS App
+        run: |
+          WORKSPACE_PATH=$(find ios -name "*.xcworkspace" | head -n 1)
+          SCHEME_NAME=$(basename "$WORKSPACE_PATH" .xcworkspace)
+          echo "Workspace found: $WORKSPACE_PATH"
+          echo "Scheme found: $SCHEME_NAME"
+          
+          xcodebuild -workspace "$WORKSPACE_PATH" \
+            -scheme "$SCHEME_NAME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS=""
+
+      - name: 📦 Package .IPA for Sideloading (AltStore, SideStore, Sideloadly)
+        run: |
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" | head -n 1)
+          echo "App found at: $APP_PATH"
+          mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
+          zip -r CS-GRADES-iOS.ipa Payload
+
+      - name: 📤 Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: CS-GRADES-iOS.ipa
+
+  # 3. Publish unified GitHub Release with both packages
+  publish-release:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+
+      - name: 📥 Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+
       - name: 🚀 Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -52,15 +123,18 @@ jobs:
             
             This release was automatically built by GitHub Actions on push to `main`.
             
-            ### 📱 Installation (Android)
-            - Download `CS-GRADES-Android.apk` attached below.
-            - Install the APK on your Android device (ensure "Install from Unknown Sources" is enabled in settings).
+            ### 🤖 Android
+            - Download **`CS-GRADES-Android.apk`** below.
+            - Open it on your Android device to install (ensure "Install from Unknown Sources" is enabled in settings).
             
-            ### 🍏 Testing on iOS
-            - Install the free **Expo Go** app from the App Store.
-            - Run `npx expo start` in the terminal and scan the QR code to run on iOS instantly.
+            ### 🍏 iOS (Sideloading & Testing)
+            - Download the unsigned **`CS-GRADES-iOS.ipa`** below.
+            - You can sideload this onto your iPhone for free using tools like **AltStore**, **SideStore**, or **Sideloadly** (no paid developer account required!).
+            - Alternatively, run `npx expo start` and scan the QR code via the free **Expo Go** app to test in real-time.
           draft: false
           prerelease: false
-          files: CS-GRADES-Android.apk
+          files: |
+            CS-GRADES-Android.apk
+            CS-GRADES-iOS.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
