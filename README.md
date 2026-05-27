@@ -44,6 +44,27 @@ CS-GRADES/
 
 ---
 
+## 📲 Installation & Testing
+
+You can run and test **CS-GRADES** easily depending on your platform:
+
+### 🤖 Android (Instant Download)
+Every time changes are pushed to the `main` branch, an optimized release is automatically compiled.
+1. Head over to the **[Releases](../../releases)** section of this GitHub repository.
+2. Download the latest **`CS-GRADES-Android.apk`**.
+3. Open the downloaded file on your device and tap **Install** (ensure "Install from Unknown Sources" is enabled in your Android settings).
+
+### 🍏 iOS (No Account Required)
+To test on iPhones for free with **zero setup** and without paying for Apple developer licenses:
+1. Download the free **[Expo Go](https://apps.apple.com/app/expo-go/id1224866571)** app from the App Store.
+2. Clone this repository locally and run the local development server:
+   ```bash
+   npx expo start
+   ```
+3. Scan the generated Metro QR code using your iPhone's camera (or the Expo Go scanner) to run the app in high-fidelity instantly!
+
+---
+
 ## 🚀 Getting Started
 
 Follow these steps to run the application locally on your machine or test it on a physical device.
