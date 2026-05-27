@@ -4,6 +4,12 @@ A premium, native iOS & Android application built with React Native and Expo (SD
 
 Featuring a sleek, true-black OLED dark interface with dynamic haptic-feeling transitions, the app persists progress locally so students never lose their data.
 
+<div align="center">
+  <img src="showcase/SC1.jpg" width="280" alt="Onboarding Screen" style="border-radius: 12px; margin: 8px;" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="showcase/SC2.jpg" width="280" alt="Grades Calculator Screen" style="border-radius: 12px; margin: 8px;" />
+</div>
+
 ---
 
 ## ✨ Features
